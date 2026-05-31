@@ -18,6 +18,10 @@ modules from `src/screens`.
 Do not put data fetching, mutations, form state, or reusable UI logic directly in
 route files.
 
+Do not create a `src/app` directory in this Expo Router project. It can confuse
+route discovery and typed route generation. Use `src/providers` for app-level
+providers instead.
+
 ### Screens
 
 `src/screens/*` owns route-level composition:

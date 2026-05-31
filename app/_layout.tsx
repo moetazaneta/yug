@@ -7,7 +7,7 @@ import "react-native-reanimated";
 import "@/global.css";
 
 import { useColorScheme } from "@/components/useColorScheme";
-import { AppProviders } from "@/src/app/providers/app-providers";
+import { AppProviders } from "@/src/providers/app-providers";
 
 export {
   // Catch any errors thrown by the Layout component.

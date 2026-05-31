@@ -1,4 +1,4 @@
-import { Link, Stack } from "expo-router";
+import { Link, Stack, type Href } from "expo-router";
 import { StyleSheet } from "react-native";
 
 import { Text, View } from "@/components/Themed";
@@ -10,7 +10,7 @@ export default function NotFoundScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>This screen does not exist.</Text>
 
-        <Link href="/(tabs)/today" style={styles.link}>
+        <Link href={"/" as Href} style={styles.link}>
           <Text style={styles.linkText}>Go to home screen!</Text>
         </Link>
       </View>
