@@ -23,7 +23,9 @@ import {
 } from "@/src/features/create-question/model";
 import { useCreateQuestionMutation } from "@/src/features/create-question/queries";
 
-const valueTypeLabels: string[] = questionValueTypes.map((type) => labelValueType(type));
+const valueTypeLabels: string[] = questionValueTypes.map((type) =>
+  labelValueType(type),
+);
 
 export function CreateQuestionSheet({
   visible,
@@ -86,7 +88,7 @@ export function CreateQuestionSheet({
   return (
     <Modal
       animationType="slide"
-      presentationStyle="pageSheet"
+      presentationStyle="formSheet"
       visible={visible}
       onRequestClose={handleClose}
     >
@@ -102,7 +104,11 @@ export function CreateQuestionSheet({
             style={styles.leftHeaderButton}
             onPress={handleClose}
           >
-            <GlassView isInteractive glassEffectStyle="clear" style={styles.headerButton}>
+            <GlassView
+              isInteractive
+              glassEffectStyle="clear"
+              style={styles.headerButton}
+            >
               <SymbolView
                 name="xmark"
                 weight="semibold"
@@ -112,14 +118,19 @@ export function CreateQuestionSheet({
             </GlassView>
           </Pressable>
           <View pointerEvents="none" style={styles.headerTitle}>
-            <Text className="text-lg font-bold text-slate-950 dark:text-white">New question</Text>
+            <Text className="text-lg font-bold text-slate-950 dark:text-white">
+              New question
+            </Text>
           </View>
           <Pressable
             accessibilityLabel="Save question"
             accessibilityRole="button"
             disabled={isDisabled}
             hitSlop={8}
-            style={[styles.rightHeaderButton, isDisabled && styles.disabledButton]}
+            style={[
+              styles.rightHeaderButton,
+              isDisabled && styles.disabledButton,
+            ]}
             onPress={save}
           >
             <GlassView
@@ -130,7 +141,9 @@ export function CreateQuestionSheet({
               <SymbolView
                 name="checkmark"
                 weight="semibold"
-                tintColor={PlatformColor(isDisabled ? "tertiaryLabel" : "label")}
+                tintColor={PlatformColor(
+                  isDisabled ? "tertiaryLabel" : "label",
+                )}
                 size={16}
               />
             </GlassView>
@@ -217,7 +230,10 @@ export function CreateQuestionSheet({
                     className="size-11 rounded-full"
                     style={{
                       backgroundColor: swatch.value,
-                      borderColor: color === swatch.value ? PlatformColor("label") : "transparent",
+                      borderColor:
+                        color === swatch.value
+                          ? PlatformColor("label")
+                          : "transparent",
                       borderWidth: 2,
                     }}
                     onPress={() => setColor(swatch.value)}

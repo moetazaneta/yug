@@ -36,24 +36,34 @@ export function TodayScreen() {
   const answerMutation = useMutation({
     mutationFn: answerTodayQuestion,
     onMutate: async (input) => {
-      await queryClient.cancelQueries({ queryKey: todayQueryKeys.view(todayKey) });
+      await queryClient.cancelQueries({
+        queryKey: todayQueryKeys.view(todayKey),
+      });
 
-      const previousToday = queryClient.getQueryData<TodayViewModel>(todayQueryKeys.view(todayKey));
+      const previousToday = queryClient.getQueryData<TodayViewModel>(
+        todayQueryKeys.view(todayKey),
+      );
 
-      queryClient.setQueryData<TodayViewModel>(todayQueryKeys.view(todayKey), (current) =>
-        applyAnswerToTodayViewModel(current, input),
+      queryClient.setQueryData<TodayViewModel>(
+        todayQueryKeys.view(todayKey),
+        (current) => applyAnswerToTodayViewModel(current, input),
       );
 
       return { previousToday };
     },
     onError: (_error, _input, context) => {
       if (context?.previousToday) {
-        queryClient.setQueryData(todayQueryKeys.view(todayKey), context.previousToday);
+        queryClient.setQueryData(
+          todayQueryKeys.view(todayKey),
+          context.previousToday,
+        );
       }
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: todayQueryKeys.view(todayKey) }),
+        queryClient.invalidateQueries({
+          queryKey: todayQueryKeys.view(todayKey),
+        }),
         queryClient.invalidateQueries({ queryKey: entryQueryKeys.all }),
         queryClient.invalidateQueries({ queryKey: questionQueryKeys.all }),
       ]);
@@ -62,7 +72,10 @@ export function TodayScreen() {
   const rows = todayQuery.data?.rows ?? [];
 
   return (
-    <ScrollEdgeBar style={{ backgroundColor: "#FEFEFE", flex: 1 }} topEdgeEffectStyle="soft">
+    <ScrollEdgeBar
+      style={{ backgroundColor: "#FEFEFE", flex: 1 }}
+      topEdgeEffectStyle="soft"
+    >
       <ScrollEdgeBar.TopBar style={{ backgroundColor: "transparent" }}>
         <BlurView
           intensity={5}
@@ -81,9 +94,14 @@ export function TodayScreen() {
           />
         </BlurView>
       </ScrollEdgeBar.TopBar>
-      <ScrollView className="z-10 flex-1" contentContainerClassName="relative px-3 pb-28 pt-2">
+      <ScrollView
+        className="z-10 flex-1"
+        contentContainerClassName="relative px-3 pb-28 pt-2"
+      >
         {todayQuery.isLoading ? (
-          <Text className="text-slate-600 dark:text-slate-300">Loading questions...</Text>
+          <Text className="text-slate-600 dark:text-slate-300">
+            Loading questions...
+          </Text>
         ) : rows.length === 0 ? (
           <EmptyTodayState tint={tint} onCreate={() => setIsCreating(true)} />
         ) : (
@@ -103,7 +121,9 @@ export function TodayScreen() {
         visible={isCreating}
         onClose={() => setIsCreating(false)}
         onCreated={() => {
-          void queryClient.invalidateQueries({ queryKey: todayQueryKeys.view(todayKey) });
+          void queryClient.invalidateQueries({
+            queryKey: todayQueryKeys.view(todayKey),
+          });
         }}
       />
     </ScrollEdgeBar>

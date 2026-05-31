@@ -20,7 +20,10 @@ export default function TabLayout() {
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="entries">
           <NativeTabs.Trigger.Label>Entries</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon sf={icons.entries.sf} md={icons.entries.md} />
+          <NativeTabs.Trigger.Icon
+            sf={icons.entries.sf}
+            md={icons.entries.md}
+          />
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="chart">
           <NativeTabs.Trigger.Label>Chart</NativeTabs.Trigger.Label>
@@ -35,7 +38,10 @@ export default function TabLayout() {
         </NativeTabs.Trigger>*/}
         <NativeTabs.Trigger name="playground" role="search">
           <NativeTabs.Trigger.Label>Playground</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon sf={icons.playground.sf} md={icons.playground.md} />
+          <NativeTabs.Trigger.Icon
+            sf={icons.playground.sf}
+            md={icons.playground.md}
+          />
         </NativeTabs.Trigger>
       </NativeTabs>
     </SafeAreaProvider>
