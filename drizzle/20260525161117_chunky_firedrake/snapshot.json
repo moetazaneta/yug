@@ -2,9 +2,7 @@
   "version": "7",
   "dialect": "sqlite",
   "id": "a5bbc69e-3b9b-4c11-848c-655f582821b2",
-  "prevIds": [
-    "00000000-0000-0000-0000-000000000000"
-  ],
+  "prevIds": ["00000000-0000-0000-0000-000000000000"],
   "ddl": [
     {
       "name": "entries",
@@ -46,7 +44,17 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
+      "autoincrement": false,
+      "default": "(current_timestamp)",
+      "generated": null,
+      "name": "datetime",
+      "entityType": "columns",
+      "table": "entries"
+    },
+    {
+      "type": "text",
+      "notNull": true,
       "autoincrement": false,
       "default": "(current_timestamp)",
       "generated": null,
@@ -56,7 +64,7 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": "(current_timestamp)",
       "generated": null,
@@ -96,9 +104,9 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
-      "default": null,
+      "default": "''",
       "generated": null,
       "name": "description",
       "entityType": "columns",
@@ -128,7 +136,7 @@
       "type": "text",
       "notNull": true,
       "autoincrement": false,
-      "default": null,
+      "default": "''",
       "generated": null,
       "name": "valueUnits",
       "entityType": "columns",
@@ -138,7 +146,7 @@
       "type": "text",
       "notNull": true,
       "autoincrement": false,
-      "default": null,
+      "default": "'daily'",
       "generated": null,
       "name": "repeat",
       "entityType": "columns",
@@ -146,7 +154,7 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": "(current_timestamp)",
       "generated": null,
@@ -156,7 +164,7 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": "(current_timestamp)",
       "generated": null,
@@ -165,18 +173,14 @@
       "table": "questions"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "entries_pk",
       "table": "entries",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "questions_pk",
       "table": "questions",

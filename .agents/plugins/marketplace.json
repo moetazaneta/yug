@@ -1,0 +1,23 @@
+{
+  "name": "yug-react-native",
+  "interface": {
+    "displayName": "yug-react-native"
+  },
+  "plugins": [
+    {
+      "name": "expo",
+      "source": {
+        "source": "local",
+        "path": "./plugins/expo"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL",
+        "products": [
+          "CODEX"
+        ]
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

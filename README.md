@@ -84,6 +84,7 @@ For React Native component tests that need Expo/native Jest transforms, add a se
 ## Notes
 
 - Use native/system Liquid Glass where possible, such as Expo Router `NativeTabs` or `expo-glass-effect`; do not mimic native Liquid Glass with custom blur/gradient/shadow compositions.
-- Local data is scaffolded with `expo-sqlite` in `src/data`.
-- Analytics calls should go through `src/lib/analytics` instead of importing PostHog directly in app code.
+- Local data uses Drizzle with `expo-sqlite` through `src/entities` and `src/shared/db`.
+- Analytics calls should go through `src/shared/lib/analytics` instead of importing PostHog directly in app code.
+
 # yug

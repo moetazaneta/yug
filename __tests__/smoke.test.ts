@@ -1,4 +1,4 @@
-import { theme } from "@/src/theme/tokens";
+import { theme } from "@/src/shared/theme/tokens";
 
 describe("app stack", () => {
   it("has design tokens", () => {

@@ -7,12 +7,7 @@ import "react-native-reanimated";
 import "@/global.css";
 
 import { useColorScheme } from "@/components/useColorScheme";
-import { AppQueryProvider } from "@/src/lib/query-client";
-import { Text, View } from "react-native";
-import { db } from "@/src/data/db/db";
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
-import migrations from "../drizzle/migrations";
-import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
+import { AppProviders } from "@/src/app/providers/app-providers";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -28,9 +23,6 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const { success, error: migrationError } = useMigrations(db, migrations);
-  useDrizzleStudio(db);
-
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -50,21 +42,6 @@ export default function RootLayout() {
     return null;
   }
 
-  if (migrationError) {
-    return (
-      <View>
-        <Text>Migration error: {migrationError.message}</Text>
-      </View>
-    );
-  }
-  if (!success) {
-    return (
-      <View>
-        <Text>Migration is in progress...</Text>
-      </View>
-    );
-  }
-
   return <RootLayoutNav />;
 }
 
@@ -72,13 +49,13 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <AppQueryProvider>
+    <AppProviders>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: "modal" }} />
         </Stack>
       </ThemeProvider>
-    </AppQueryProvider>
+    </AppProviders>
   );
 }

@@ -1,5 +1,97 @@
 # Yug project notes
 
+## Architecture
+
+Yug uses a pragmatic layered / feature-sliced hybrid.
+
+Dependency direction:
+
+```txt
+app -> screens -> features -> entities -> shared
+```
+
+### Routing
+
+`app/` is for Expo Router only. Route files should stay thin and render screen
+modules from `src/screens`.
+
+Do not put data fetching, mutations, form state, or reusable UI logic directly in
+route files.
+
+### Screens
+
+`src/screens/*` owns route-level composition:
+
+- page layout
+- headers and empty states
+- arranging features, entities, and shared UI
+- route-specific sections that are not reused elsewhere
+
+A screen may import features, entities, and shared code.
+
+### Features
+
+`src/features/*` owns named user workflows. A feature is usually a verb or action
+the user performs, such as:
+
+- `create-question`
+- `answer-question`
+
+Move code from a screen to a feature when it has its own mutation/query state,
+is reusable, or is independently testable as a workflow.
+
+Keep code in a screen when it is only route composition.
+
+### Entities
+
+`src/entities/*` owns core domain objects:
+
+- Drizzle schema
+- schema-derived model types
+- repositories
+- query keys
+
+For this small local-first app, entity model types may be derived from Drizzle
+schemas. Export them through `model.ts` instead of importing schema types
+directly throughout the app. This keeps a future escape hatch for separate
+domain/API types.
+
+### Shared
+
+`src/shared/*` owns cross-cutting app infrastructure:
+
+- `db`: Drizzle client, schema aggregation, seed/setup logic
+- `ui`: reusable primitives such as glass components
+- `lib`: generic utilities such as dates, ids, class-name merging, analytics
+- `theme`: colors and tokens
+
+Shared code must not import from app, screens, features, or entities.
+
+### Database
+
+Use Drizzle with `expo-sqlite` only.
+
+Rules:
+
+- database name: `yug.db`
+- schema fields: camelCase
+- repositories live under `src/entities/*/repository.ts`
+- query keys live near the entity or feature that owns them
+- date helpers live in `src/shared/lib/date.ts`
+
+Do not add a parallel raw-SQL repository path unless there is a specific Drizzle
+limitation and the boundary remains inside an entity repository.
+
+### Native and experimental code
+
+Keep experiments isolated in `src/screens/playground`.
+
+Do not export production components from playground files. Promote useful
+patterns into `src/shared/ui` or feature-local `ui` folders first.
+
+The old custom `modules/ClearLiquidGlassView` native module was removed because
+it was not viable for the app. Prefer supported Expo/native glass APIs.
+
 ## Native iOS Liquid Glass direction
 
 Yug is iOS-first. Use as much native iOS Liquid Glass as Expo and the current iOS SDK allow.
