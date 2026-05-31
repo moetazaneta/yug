@@ -24,6 +24,27 @@ export async function listEntriesToday(): Promise<Entry[]> {
   return listEntriesBetween(today.start.toISOString(), today.end.toISOString());
 }
 
+export async function deleteEntryForQuestionOnDay({
+  questionId,
+  datetime = new Date(),
+}: {
+  questionId: string;
+  datetime?: Date;
+}): Promise<void> {
+  const bounds = dayBounds(datetime);
+  const typedQuestionId = questionId as QuestionId;
+
+  await db
+    .delete(entries)
+    .where(
+      and(
+        eq(entries.questionId, typedQuestionId),
+        gte(entries.datetime, bounds.start.toISOString()),
+        lt(entries.datetime, bounds.end.toISOString()),
+      ),
+    );
+}
+
 export async function createOrUpdateEntry({
   questionId,
   value,

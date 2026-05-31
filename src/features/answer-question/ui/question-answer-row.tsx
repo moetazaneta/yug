@@ -5,6 +5,8 @@ import { cn } from "@/src/shared/lib/cn";
 import { GlassCheckbox } from "@/src/shared/ui/glass/glass-checkbox";
 
 export function QuestionAnswerRow({ question, value, onChange }: AnswerQuestionProps) {
+  const checked = value === "true" || value === true;
+
   return (
     <View className="flex-row items-center gap-3 py-2">
       <View
@@ -20,8 +22,10 @@ export function QuestionAnswerRow({ question, value, onChange }: AnswerQuestionP
       </View>
       {question.valueType === "boolean" ? (
         <GlassCheckbox
-          value={value === "true" || value === true}
-          onValueChange={(checked) => onChange(checked)}
+          value={checked}
+          onValueChange={(nextChecked) => {
+            onChange(nextChecked);
+          }}
         />
       ) : question.valueType === "choice" ? (
         <View className="flex-row overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">

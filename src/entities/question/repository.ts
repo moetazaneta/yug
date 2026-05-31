@@ -1,4 +1,4 @@
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 import { db } from "@/src/shared/db/client";
 
@@ -7,6 +7,14 @@ import { questions } from "./schema";
 
 export async function listQuestions(): Promise<Question[]> {
   return db.select().from(questions).orderBy(asc(questions.createdAt));
+}
+
+export async function listQuestionsForToday(): Promise<Question[]> {
+  return db
+    .select()
+    .from(questions)
+    .where(eq(questions.repeat, "daily"))
+    .orderBy(asc(questions.createdAt));
 }
 
 export async function createQuestion(input: CreateQuestionInput): Promise<Question> {

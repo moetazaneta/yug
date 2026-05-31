@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { v4 as uuidv4 } from "uuid";
+
+import { createId } from "@/src/shared/lib/id";
 
 export type QuestionId = string & { __brand: "question_id" };
 export type QuestionValueType = "text" | "number" | "boolean" | "choice";
@@ -9,7 +10,7 @@ export type QuestionRepeat = "daily";
 export const questions = sqliteTable("questions", {
   id: text()
     .$type<QuestionId>()
-    .$defaultFn(() => uuidv4() as QuestionId)
+    .$defaultFn(() => createId("question") as QuestionId)
     .primaryKey(),
   icon: text().notNull(),
   title: text().notNull(),

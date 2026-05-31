@@ -1,52 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
 import { GlassView } from "expo-glass-effect";
 import { SymbolView } from "expo-symbols";
-import { useMemo } from "react";
 import { PlatformColor, Pressable, Text, View } from "react-native";
 
-import { listEntriesBetween } from "@/src/entities/entry/repository";
-import { entryQueryKeys } from "@/src/entities/entry/queries";
-import { listQuestions } from "@/src/entities/question/repository";
-import { questionQueryKeys } from "@/src/entities/question/queries";
-import { dayBounds, monthBounds, toDayKey, toMonthKey } from "@/src/shared/lib/date";
 import { GlassCard } from "@/src/shared/ui/glass/glass-card";
 
-export function TodaySummary({ onCreate }: { onCreate?: () => void }) {
-  const now = useMemo(() => new Date(), []);
-  const today = dayBounds(now);
-  const month = monthBounds(now);
+import type { TodayViewModel } from "./service";
 
-  const questionsQuery = useQuery({
-    queryKey: questionQueryKeys.all,
-    queryFn: listQuestions,
-  });
-  const todayEntriesQuery = useQuery({
-    queryKey: entryQueryKeys.today(toDayKey(today.start)),
-    queryFn: () => listEntriesBetween(today.start.toISOString(), today.end.toISOString()),
-  });
-  const monthEntriesQuery = useQuery({
-    queryKey: entryQueryKeys.month(toMonthKey(now)),
-    queryFn: () => listEntriesBetween(month.start.toISOString(), month.end.toISOString()),
-  });
+const emptySummary: TodayViewModel["summary"] = {
+  answered: 0,
+  daysWithEntries: 0,
+  monthPercent: 0,
+  todayReadable: "",
+  total: 0,
+};
 
-  const questions = questionsQuery.data ?? [];
-  const todayEntries = todayEntriesQuery.data ?? [];
-  const monthEntries = monthEntriesQuery.data ?? [];
-  const answered = new Set(todayEntries.map((entry) => entry.questionId)).size;
-  const total = questions.length;
-  const daysWithEntries = new Set(monthEntries.map((entry) => toDayKey(entry.datetime))).size;
-  const monthDayCount = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const monthPercent = Math.round((daysWithEntries / monthDayCount) * 100);
-  const todayReadable = now.toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "long",
-    weekday: "long",
-  });
-
+export function TodaySummary({
+  summary = emptySummary,
+  onCreate,
+}: {
+  summary?: TodayViewModel["summary"] | undefined;
+  onCreate?: () => void;
+}) {
   const stats = [
-    { label: "Answers", value: `${answered}/${total}` },
-    { label: "Month", value: `${monthPercent}%` },
-    { label: "Days", value: String(daysWithEntries) },
+    { label: "Answers", value: `${summary.answered}/${summary.total}` },
+    { label: "Month", value: `${summary.monthPercent}%` },
+    { label: "Days", value: String(summary.daysWithEntries) },
   ];
 
   return (
@@ -65,7 +43,9 @@ export function TodaySummary({ onCreate }: { onCreate?: () => void }) {
         >
           <Text className="text-lg text-neutral-950 dark:text-white">Edit</Text>
         </GlassView>
-        <Text className="text-lg font-bold text-neutral-950 dark:text-white">{todayReadable}</Text>
+        <Text className="text-lg font-bold text-neutral-950 dark:text-white">
+          {summary.todayReadable}
+        </Text>
         <GlassView
           isInteractive
           glassEffectStyle={{ style: "clear" }}
@@ -73,14 +53,18 @@ export function TodaySummary({ onCreate }: { onCreate?: () => void }) {
             alignItems: "center",
             borderRadius: 99,
             flexDirection: "row",
-            gap: 10,
             height: 44,
             justifyContent: "space-between",
-            paddingHorizontal: 10,
+            overflow: "hidden",
             width: 84,
           }}
         >
-          <Pressable onPress={onCreate}>
+          <Pressable
+            accessibilityLabel="Create question"
+            accessibilityRole="button"
+            className="h-full flex-1 items-center justify-center"
+            onPress={onCreate}
+          >
             <SymbolView
               name="plus.circle"
               weight="light"
@@ -88,7 +72,11 @@ export function TodaySummary({ onCreate }: { onCreate?: () => void }) {
               size={24}
             />
           </Pressable>
-          <Pressable>
+          <Pressable
+            accessibilityLabel="Edit questions"
+            accessibilityRole="button"
+            className="h-full flex-1 items-center justify-center"
+          >
             <SymbolView
               name="square.and.pencil"
               weight="light"
@@ -101,11 +89,11 @@ export function TodaySummary({ onCreate }: { onCreate?: () => void }) {
       <GlassCard style={{ width: "100%" }}>
         <View className="flex-row justify-between gap-2">
           {stats.map((stat) => (
-            <View key={stat.label} className="flex-1 items-center">
-              <Text className="text-2xl font-bold text-neutral-950 dark:text-white">
+            <View key={stat.label} className="flex-1 flex flex-col items-center gap-1">
+              <Text className="text-lg font-bold text-neutral-950 dark:text-white">
                 {stat.value}
               </Text>
-              <Text className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
+              <Text className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                 {stat.label}
               </Text>
             </View>

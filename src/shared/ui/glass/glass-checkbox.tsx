@@ -26,8 +26,8 @@ export function GlassCheckbox({
           <SymbolView name="checkmark" tintColor={theme.primary} size={16} weight="bold" />
         ) : null}
         <GlassView
-          isInteractive
           glassEffectStyle={{ style: "clear" }}
+          pointerEvents="none"
           style={{
             opacity: value ? 1 : 0.1,
             borderRadius: 14,
