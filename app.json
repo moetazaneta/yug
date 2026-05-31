@@ -45,6 +45,11 @@
         }
       ]
     ],
+    "extra": {
+      "router": {
+        "root": "app"
+      }
+    },
     "experiments": {
       "typedRoutes": true
     }
