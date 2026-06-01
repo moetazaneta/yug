@@ -3,10 +3,9 @@ import type { QuestionValueType } from "@/src/entities/question/model";
 export const questionValueTypes: QuestionValueType[] = ["boolean", "number", "text", "choice"];
 
 export const questionColorOptions = [
+  { name: "Black", token: "black", value: "#000000" },
   { name: "Slate", token: "slate-500", value: "#64748b" },
-  { name: "Gray", token: "gray-500", value: "#6b7280" },
   { name: "Zinc", token: "zinc-500", value: "#71717a" },
-  { name: "Neutral", token: "neutral-500", value: "#737373" },
   { name: "Stone", token: "stone-500", value: "#78716c" },
   { name: "Red", token: "red-500", value: "#ef4444" },
   { name: "Orange", token: "orange-500", value: "#f97316" },

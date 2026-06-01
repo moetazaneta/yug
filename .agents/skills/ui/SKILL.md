@@ -49,3 +49,27 @@ When working on UI:
 4. Use Uniwind for ordinary layout/styling where it fits.
 5. Use direct native component props/styles for native UI APIs that do not map cleanly to class names.
 6. Run typecheck after code changes.
+
+## Native modal toolbar actions
+
+For route-backed modals or stack screens, prefer Expo Router `Stack.Toolbar`
+over custom React Native or SwiftUI-button header controls. `Stack.Toolbar`
+creates native toolbar items in the stack header, including the native circular
+done/checkmark button style on iOS.
+
+Use `Stack.Toolbar` inside the route page component, not in layout files and not
+inside embedded sheets such as TrueSheet. If an embedded sheet needs those exact
+native toolbar buttons, move the workflow to an Expo Router modal route.
+
+Example:
+
+```tsx
+import { Stack } from "expo-router";
+
+<Stack.Toolbar placement="left">
+  <Stack.Toolbar.Button icon="xmark" onPress={onClose} />
+</Stack.Toolbar>
+<Stack.Toolbar placement="right">
+  <Stack.Toolbar.Button icon="checkmark" tintColor="primary" variant="done" onPress={onSave} />
+</Stack.Toolbar>
+```

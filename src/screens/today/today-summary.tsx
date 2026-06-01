@@ -29,7 +29,7 @@ export function TodaySummary({
 
   return (
     <View className="items-center gap-2">
-      <View className="w-full flex-row items-center justify-between gap-4">
+      {/*<View className="w-full flex-row items-center justify-between gap-4">
         <GlassView
           isInteractive
           glassEffectStyle={{ style: "clear" }}
@@ -85,11 +85,14 @@ export function TodaySummary({
             />
           </Pressable>
         </GlassView>
-      </View>
+      </View>*/}
       <GlassCard style={{ width: "100%" }}>
         <View className="flex-row justify-between gap-2">
           {stats.map((stat) => (
-            <View key={stat.label} className="flex-1 flex flex-col items-center gap-1">
+            <View
+              key={stat.label}
+              className="flex-1 flex flex-col items-center gap-1"
+            >
               <Text className="text-lg font-bold text-neutral-950 dark:text-white">
                 {stat.value}
               </Text>
