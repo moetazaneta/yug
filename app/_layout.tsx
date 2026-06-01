@@ -54,6 +54,13 @@ function RootLayoutNav() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="create-question"
+            options={{
+              presentation: "formSheet",
+              sheetAllowedDetents: [0.72],
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </AppProviders>

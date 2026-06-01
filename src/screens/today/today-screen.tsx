@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BlurView } from "expo-blur";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useMemo } from "react";
 import { ScrollView, Text } from "react-native";
 import { ScrollEdgeBar } from "react-native-scroll-edge-bar";
@@ -21,6 +21,7 @@ import {
   type TodayViewModel,
 } from "./service";
 import { TodaySummary } from "./today-summary";
+import { TodayToolbar } from "./today-toolbar";
 
 export function TodayScreen() {
   const colorScheme = useColorScheme();
@@ -42,17 +43,23 @@ export function TodayScreen() {
         queryKey: todayQueryKeys.view(todayKey),
       });
 
-      const previousToday = queryClient.getQueryData<TodayViewModel>(todayQueryKeys.view(todayKey));
+      const previousToday = queryClient.getQueryData<TodayViewModel>(
+        todayQueryKeys.view(todayKey),
+      );
 
-      queryClient.setQueryData<TodayViewModel>(todayQueryKeys.view(todayKey), (current) =>
-        applyAnswerToTodayViewModel(current, input),
+      queryClient.setQueryData<TodayViewModel>(
+        todayQueryKeys.view(todayKey),
+        (current) => applyAnswerToTodayViewModel(current, input),
       );
 
       return { previousToday };
     },
     onError: (_error, _input, context) => {
       if (context?.previousToday) {
-        queryClient.setQueryData(todayQueryKeys.view(todayKey), context.previousToday);
+        queryClient.setQueryData(
+          todayQueryKeys.view(todayKey),
+          context.previousToday,
+        );
       }
     },
     onSuccess: async () => {
@@ -68,28 +75,16 @@ export function TodayScreen() {
   const rows = todayQuery.data?.rows ?? [];
 
   return (
-    <ScrollEdgeBar style={{ backgroundColor: "#FEFEFE", flex: 1 }} topEdgeEffectStyle="soft">
-      <ScrollEdgeBar.TopBar style={{ backgroundColor: "transparent" }}>
-        <BlurView
-          intensity={5}
-          style={{
-            experimental_backgroundImage:
-              "linear-gradient(to bottom, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.01) 75%, transparent)",
-            height: 150,
-            paddingHorizontal: 16,
-            paddingTop: 100,
-            top: -100,
-          }}
-        >
-          <TodaySummary
-            summary={todayQuery.data?.summary ?? undefined}
-            onCreate={openCreateQuestion}
-          />
-        </BlurView>
-      </ScrollEdgeBar.TopBar>
-      <ScrollView className="z-10 flex-1" contentContainerClassName="relative px-3 pb-28 pt-2">
+    <>
+      <TodayToolbar />
+      <ScrollView
+        className="z-10 flex-1 bg-white"
+        contentContainerClassName="relative px-3 pb-28 pt-2"
+      >
         {todayQuery.isLoading ? (
-          <Text className="text-slate-600 dark:text-slate-300">Loading questions...</Text>
+          <Text className="text-slate-600 dark:text-slate-300">
+            Loading questions...
+          </Text>
         ) : rows.length === 0 ? (
           <EmptyTodayState tint={tint} onCreate={openCreateQuestion} />
         ) : (
@@ -105,6 +100,6 @@ export function TodayScreen() {
           ))
         )}
       </ScrollView>
-    </ScrollEdgeBar>
+    </>
   );
 }
