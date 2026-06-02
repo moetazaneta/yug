@@ -1,11 +1,17 @@
 import type { Entry } from "@/src/entities/entry/model";
 import {
   createOrUpdateEntry,
+  deleteEntriesForQuestionsOnDay,
   deleteEntryForQuestionOnDay,
   listEntriesBetween,
 } from "@/src/entities/entry/repository";
 import type { Question } from "@/src/entities/question/model";
-import { listQuestionsForToday } from "@/src/entities/question/repository";
+import {
+  archiveQuestions,
+  listQuestionsForToday,
+  reorderQuestions,
+  softDeleteQuestions,
+} from "@/src/entities/question/repository";
 import { dayBounds, monthBounds, toDayKey } from "@/src/shared/lib/date";
 
 export type TodayQuestionRow = {
@@ -79,6 +85,28 @@ export async function answerTodayQuestion({
   }
 
   await createOrUpdateEntry({ questionId, value, datetime });
+}
+
+export async function uncheckTodayQuestions({
+  questionIds,
+  datetime = new Date(),
+}: {
+  questionIds: string[];
+  datetime?: Date;
+}): Promise<void> {
+  await deleteEntriesForQuestionsOnDay({ questionIds, datetime });
+}
+
+export async function archiveTodayQuestions(questionIds: string[]): Promise<void> {
+  await archiveQuestions(questionIds);
+}
+
+export async function softDeleteTodayQuestions(questionIds: string[]): Promise<void> {
+  await softDeleteQuestions(questionIds);
+}
+
+export async function reorderTodayQuestions(questionIdsInOrder: string[]): Promise<void> {
+  await reorderQuestions(questionIdsInOrder);
 }
 
 export function applyAnswerToTodayViewModel(

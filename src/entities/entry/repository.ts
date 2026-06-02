@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lt } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt } from "drizzle-orm";
 
 import { db } from "@/src/shared/db/client";
 import { dayBounds } from "@/src/shared/lib/date";
@@ -39,6 +39,30 @@ export async function deleteEntryForQuestionOnDay({
     .where(
       and(
         eq(entries.questionId, typedQuestionId),
+        gte(entries.datetime, bounds.start.toISOString()),
+        lt(entries.datetime, bounds.end.toISOString()),
+      ),
+    );
+}
+
+export async function deleteEntriesForQuestionsOnDay({
+  questionIds,
+  datetime = new Date(),
+}: {
+  questionIds: string[];
+  datetime?: Date;
+}): Promise<void> {
+  if (questionIds.length === 0) {
+    return;
+  }
+
+  const bounds = dayBounds(datetime);
+
+  await db
+    .delete(entries)
+    .where(
+      and(
+        inArray(entries.questionId, questionIds as QuestionId[]),
         gte(entries.datetime, bounds.start.toISOString()),
         lt(entries.datetime, bounds.end.toISOString()),
       ),

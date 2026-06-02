@@ -7,6 +7,7 @@ export const databaseName = "yug.db";
 
 const expo = openDatabaseSync(databaseName);
 prepareLegacyRawSqlDatabase(expo);
+prepareQuestionLifecycleColumns(expo);
 
 export const db = drizzle(expo, { schema });
 
@@ -79,6 +80,34 @@ function prepareLegacyRawSqlDatabase(database: SQLiteDatabase) {
     WHERE question_id IS NOT NULL;
     DROP TABLE entries_legacy_raw;
   `);
+}
+
+function prepareQuestionLifecycleColumns(database: SQLiteDatabase) {
+  const questionColumns = getTableColumns(database, "questions");
+  if (questionColumns.size === 0) {
+    return;
+  }
+
+  if (!questionColumns.has("archivedAt")) {
+    database.execSync("ALTER TABLE questions ADD COLUMN archivedAt text;");
+  }
+
+  if (!questionColumns.has("deletedAt")) {
+    database.execSync("ALTER TABLE questions ADD COLUMN deletedAt text;");
+  }
+
+  if (!questionColumns.has("sortOrder")) {
+    database.execSync("ALTER TABLE questions ADD COLUMN sortOrder integer NOT NULL DEFAULT 0;");
+    database.execSync(`
+      UPDATE questions
+      SET sortOrder = (
+        SELECT COUNT(*)
+        FROM questions AS earlier
+        WHERE earlier.createdAt < questions.createdAt
+          OR (earlier.createdAt = questions.createdAt AND earlier.id <= questions.id)
+      ) - 1;
+    `);
+  }
 }
 
 function getTableColumns(database: SQLiteDatabase, tableName: string) {

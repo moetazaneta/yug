@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 import { createId } from "@/src/shared/lib/id";
 
@@ -19,6 +19,9 @@ export const questions = sqliteTable("questions", {
   valueType: text().$type<QuestionValueType>().notNull(),
   valueUnits: text().notNull().default(""),
   repeat: text().$type<QuestionRepeat>().notNull().default("daily"),
+  archivedAt: text(),
+  deletedAt: text(),
+  sortOrder: integer().notNull().default(0),
   createdAt: text()
     .notNull()
     .default(sql`(current_timestamp)`),
