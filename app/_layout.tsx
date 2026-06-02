@@ -61,6 +61,13 @@ function RootLayoutNav() {
               sheetAllowedDetents: [0.72],
             }}
           />
+          <Stack.Screen
+            name="entries-edit"
+            options={{
+              presentation: "formSheet",
+              sheetAllowedDetents: [0.8],
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </AppProviders>
