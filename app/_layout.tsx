@@ -4,10 +4,12 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-gesture-handler";
 import "react-native-reanimated";
+import { Uniwind } from "uniwind";
 import "@/global.css";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AppProviders } from "@/src/providers/app-providers";
+import { useAppStore } from "@/src/state/app-store";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,10 +49,16 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const themePreference = useAppStore((state) => state.themePreference);
+  const effectiveColorScheme = themePreference === "system" ? colorScheme : themePreference;
+
+  useEffect(() => {
+    Uniwind.setTheme(themePreference);
+  }, [themePreference]);
 
   return (
     <AppProviders>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={effectiveColorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: "modal" }} />
