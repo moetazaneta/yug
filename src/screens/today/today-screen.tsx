@@ -1,11 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, Stack } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, ScrollView, Text } from "react-native";
+import { Alert, ScrollView, Text, useWindowDimensions } from "react-native";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { entryQueryKeys } from "@/src/entities/entry/queries";
+import { listEntries } from "@/src/entities/entry/repository";
 import { questionQueryKeys } from "@/src/entities/question/queries";
+import {
+  GRID_COLUMNS,
+  GRID_GAP,
+  groupEntriesByQuestion,
+  makeGridWeeks,
+} from "@/src/screens/entries/entries-utils";
 import { toDayKey } from "@/src/shared/lib/date";
 import { colors } from "@/src/shared/theme/colors";
 import { useTabBarVisibilityStore } from "@/src/shared/ui/navigation/tab-bar-visibility-store";
@@ -29,6 +36,7 @@ import { TodayToolbar } from "./today-toolbar";
 const emptyTodayRows: TodayQuestionRow[] = [];
 
 export function TodayScreen() {
+  const { width } = useWindowDimensions();
   const colorScheme = useColorScheme();
   const tint = colors[colorScheme].tint;
   const queryClient = useQueryClient();
@@ -44,6 +52,10 @@ export function TodayScreen() {
   const todayQuery = useQuery({
     queryKey: todayQueryKeys.view(todayKey),
     queryFn: () => getTodayViewModel(today),
+  });
+  const entriesQuery = useQuery({
+    queryKey: entryQueryKeys.all,
+    queryFn: listEntries,
   });
   const answerMutation = useMutation({
     mutationFn: answerTodayQuestion,
@@ -76,6 +88,19 @@ export function TodayScreen() {
     },
   });
   const rows = todayQuery.data?.rows ?? emptyTodayRows;
+  const entryGridWeeks = useMemo(() => makeGridWeeks(today, GRID_COLUMNS), [today]);
+  const entriesByQuestion = useMemo(
+    () => groupEntriesByQuestion(entriesQuery.data ?? []),
+    [entriesQuery.data],
+  );
+  const entryGridSquareSize = useMemo(() => {
+    const maxPreviewWidth = Math.min(width - 64, 260);
+
+    return Math.max(
+      6,
+      Math.floor((maxPreviewWidth - GRID_GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS),
+    );
+  }, [width]);
   useEffect(() => {
     setOrderedRows(rows);
   }, [rows]);
@@ -164,6 +189,29 @@ export function TodayScreen() {
     },
     [orderedRows, softDeleteRowsMutation],
   );
+  const editQuestionEntries = useCallback((questionId: string) => {
+    router.push({
+      pathname: "/entries-edit",
+      params: { questionId },
+    });
+  }, []);
+  const deleteQuestion = useCallback(
+    (questionId: string) => {
+      Alert.alert(
+        "Delete question?",
+        "Deleted questions are hidden from Today but their entries stay in history.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: () => softDeleteRowsMutation.mutate([questionId]),
+          },
+        ],
+      );
+    },
+    [softDeleteRowsMutation],
+  );
 
   useEffect(() => {
     setTabBarHidden(isEditing);
@@ -243,13 +291,24 @@ export function TodayScreen() {
         </ScrollView>
       ) : (
         <TodayEditList
+          entriesByQuestion={entriesByQuestion}
+          entryGridSquareSize={entryGridSquareSize}
+          entryGridWeeks={entryGridWeeks}
           isEditing={isEditing}
           rows={orderedRows}
           selectedQuestionIds={selectedQuestionIds}
           onAnswerChange={(questionId, value) => {
             answerMutation.mutate({ questionId, value });
           }}
+          onArchiveQuestion={(questionId) => {
+            archiveMutation.mutate([questionId]);
+          }}
+          onDeleteQuestion={deleteQuestion}
+          onEditEntries={editQuestionEntries}
           onSelectionChange={setSelectedQuestionIds}
+          onUncheckQuestion={(questionId) => {
+            uncheckMutation.mutate([questionId]);
+          }}
           onMove={moveRows}
           onDelete={deleteRowsAtIndices}
         />

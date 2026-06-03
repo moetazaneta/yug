@@ -1,4 +1,6 @@
 import {
+  Button,
+  ContextMenu,
   Host,
   HStack,
   List,
@@ -18,18 +20,27 @@ import {
 import { View } from "react-native";
 import type { ViewStyle } from "react-native";
 
+import type { Entry } from "@/src/entities/entry/model";
 import type { Question } from "@/src/entities/question/model";
 import type { AnswerValue } from "@/src/features/answer-question/model";
 import { QuestionAnswerControl } from "@/src/features/answer-question/ui/question-answer-row";
+import { EntryGridPreview } from "@/src/screens/entries/entry-grid";
 
 import type { TodayEditListProps } from "./today-edit-list.types";
 
 export function TodayEditList({
+  entriesByQuestion,
+  entryGridSquareSize,
+  entryGridWeeks,
   isEditing,
   rows,
   selectedQuestionIds,
   onAnswerChange,
+  onArchiveQuestion,
+  onDeleteQuestion,
+  onEditEntries,
   onSelectionChange,
+  onUncheckQuestion,
   onMove,
   onDelete,
 }: TodayEditListProps) {
@@ -47,14 +58,13 @@ export function TodayEditList({
         ]}
       >
         <Section>
-          <List.ForEach
-            onDelete={onDelete}
-            onMove={onMove}
-            modifiers={[deleteDisabled()]}
-          >
+          <List.ForEach onDelete={onDelete} onMove={onMove} modifiers={[deleteDisabled()]}>
             {rows.map(({ question, value }) => (
               <TodayQuestionListRow
                 key={question.id}
+                entriesByDay={entriesByQuestion.get(question.id)}
+                entryGridSquareSize={entryGridSquareSize}
+                entryGridWeeks={entryGridWeeks}
                 question={question}
                 control={
                   !isEditing ? (
@@ -67,6 +77,18 @@ export function TodayEditList({
                     />
                   ) : null
                 }
+                onArchive={() => {
+                  onArchiveQuestion(question.id);
+                }}
+                onDelete={() => {
+                  onDeleteQuestion(question.id);
+                }}
+                onEditEntries={() => {
+                  onEditEntries(question.id);
+                }}
+                onUncheck={() => {
+                  onUncheckQuestion(question.id);
+                }}
               />
             ))}
           </List.ForEach>
@@ -77,21 +99,53 @@ export function TodayEditList({
 }
 
 type TodayQuestionListRowProps = {
+  entriesByDay: Map<string, Entry> | undefined;
+  entryGridSquareSize: number;
+  entryGridWeeks: Date[][];
   question: Question;
   control: React.ReactElement | null;
+  onArchive: () => void;
+  onDelete: () => void;
+  onEditEntries: () => void;
+  onUncheck: () => void;
 };
 
 function TodayQuestionListRow({
+  entriesByDay,
+  entryGridSquareSize,
+  entryGridWeeks,
   question,
   control,
+  onArchive,
+  onDelete,
+  onEditEntries,
+  onUncheck,
 }: TodayQuestionListRowProps) {
   return (
-    <HStack modifiers={[tag(question.id)]}>
-      <Text>{question.icon}</Text>
-      <Text>{question.title}</Text>
-      <Spacer />
-      {control ? <RNHostView matchContents>{control}</RNHostView> : null}
-    </HStack>
+    <ContextMenu modifiers={[tag(question.id)]}>
+      <ContextMenu.Items>
+        <Button label="Edit" systemImage="pencil" onPress={onEditEntries} />
+        <Button label="Uncheck" systemImage="checkmark.circle" onPress={onUncheck} />
+        <Button label="Archive" systemImage="archivebox" onPress={onArchive} />
+        <Button label="Delete" role="destructive" systemImage="trash" onPress={onDelete} />
+      </ContextMenu.Items>
+      <ContextMenu.Trigger>
+        <HStack>
+          <Text>{question.icon}</Text>
+          <Text>{question.title}</Text>
+          <Spacer />
+          {control ? <RNHostView matchContents>{control}</RNHostView> : null}
+        </HStack>
+      </ContextMenu.Trigger>
+      <ContextMenu.Preview>
+        <EntryGridPreview
+          entriesByDay={entriesByDay}
+          question={question}
+          squareSize={entryGridSquareSize}
+          weeks={entryGridWeeks}
+        />
+      </ContextMenu.Preview>
+    </ContextMenu>
   );
 }
 
@@ -110,11 +164,7 @@ function TodayQuestionAnswerControl({
 
   return (
     <View style={frameStyle}>
-      <QuestionAnswerControl
-        question={question}
-        value={value ?? undefined}
-        onChange={onChange}
-      />
+      <QuestionAnswerControl question={question} value={value ?? undefined} onChange={onChange} />
     </View>
   );
 }
