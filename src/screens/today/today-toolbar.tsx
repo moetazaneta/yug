@@ -6,11 +6,7 @@ type TodayToolbarProps = {
   onExitEdit: () => void;
 };
 
-export function TodayToolbar({
-  isEditing,
-  onEnterEdit,
-  onExitEdit,
-}: TodayToolbarProps) {
+export function TodayToolbar({ isEditing, onEnterEdit, onExitEdit }: TodayToolbarProps) {
   const todayReadable = new Date().toLocaleDateString(undefined, {
     day: "numeric",
     month: "long",
@@ -29,21 +25,10 @@ export function TodayToolbar({
         </Stack.Toolbar.Button>
       </Stack.Toolbar>
       <Stack.Title>{todayReadable}</Stack.Title>
-      {!isEditing && (
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            // separateBackground
-            // hidesSharedBackground
-            icon="plus.circle"
-            onPress={openCreateQuestion}
-          />
-          <Stack.Toolbar.Button
-            // hidesSharedBackground
-            icon="square.and.pencil"
-            onPress={() => {}}
-          />
-        </Stack.Toolbar>
-      )}
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button hidden={isEditing} icon="plus.circle" onPress={openCreateQuestion} />
+        <Stack.Toolbar.Button hidden={isEditing} icon="square.and.pencil" onPress={() => {}} />
+      </Stack.Toolbar>
     </>
   );
 }

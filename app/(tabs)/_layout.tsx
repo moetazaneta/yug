@@ -1,5 +1,6 @@
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { AndroidSymbol, SFSymbol } from "expo-symbols";
+import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useTabBarVisibilityStore } from "@/src/shared/ui/navigation/tab-bar-visibility-store";
@@ -14,10 +15,11 @@ const icons = {
 
 export default function TabLayout() {
   const isTabBarHidden = useTabBarVisibilityStore((state) => state.isTabBarHidden);
+  const stagedTabBarHidden = useStagedNativeTabBarHidden(isTabBarHidden);
 
   return (
     <SafeAreaProvider>
-      <NativeTabs hidden={isTabBarHidden}>
+      <NativeTabs hidden={stagedTabBarHidden}>
         <NativeTabs.Trigger name="today">
           <NativeTabs.Trigger.Label>Today</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon sf={icons.index.sf} md={icons.index.md} />
@@ -44,4 +46,25 @@ export default function TabLayout() {
       </NativeTabs>
     </SafeAreaProvider>
   );
+}
+
+function useStagedNativeTabBarHidden(shouldHide: boolean) {
+  const [hidden, setHidden] = useState(shouldHide);
+
+  useEffect(() => {
+    if (!shouldHide) {
+      setHidden(false);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setHidden(true);
+    }, 180);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [shouldHide]);
+
+  return hidden;
 }

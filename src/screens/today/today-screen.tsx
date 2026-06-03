@@ -6,7 +6,6 @@ import { Alert, ScrollView, Text } from "react-native";
 import { useColorScheme } from "@/components/useColorScheme";
 import { entryQueryKeys } from "@/src/entities/entry/queries";
 import { questionQueryKeys } from "@/src/entities/question/queries";
-import { QuestionAnswerRow } from "@/src/features/answer-question/ui/question-answer-row";
 import { toDayKey } from "@/src/shared/lib/date";
 import { colors } from "@/src/shared/theme/colors";
 import { useTabBarVisibilityStore } from "@/src/shared/ui/navigation/tab-bar-visibility-store";
@@ -33,9 +32,7 @@ export function TodayScreen() {
   const colorScheme = useColorScheme();
   const tint = colors[colorScheme].tint;
   const queryClient = useQueryClient();
-  const setTabBarHidden = useTabBarVisibilityStore(
-    (state) => state.setTabBarHidden,
-  );
+  const setTabBarHidden = useTabBarVisibilityStore((state) => state.setTabBarHidden);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
   const [orderedRows, setOrderedRows] = useState<TodayQuestionRow[]>([]);
@@ -55,23 +52,17 @@ export function TodayScreen() {
         queryKey: todayQueryKeys.view(todayKey),
       });
 
-      const previousToday = queryClient.getQueryData<TodayViewModel>(
-        todayQueryKeys.view(todayKey),
-      );
+      const previousToday = queryClient.getQueryData<TodayViewModel>(todayQueryKeys.view(todayKey));
 
-      queryClient.setQueryData<TodayViewModel>(
-        todayQueryKeys.view(todayKey),
-        (current) => applyAnswerToTodayViewModel(current, input),
+      queryClient.setQueryData<TodayViewModel>(todayQueryKeys.view(todayKey), (current) =>
+        applyAnswerToTodayViewModel(current, input),
       );
 
       return { previousToday };
     },
     onError: (_error, _input, context) => {
       if (context?.previousToday) {
-        queryClient.setQueryData(
-          todayQueryKeys.view(todayKey),
-          context.previousToday,
-        );
+        queryClient.setQueryData(todayQueryKeys.view(todayKey), context.previousToday);
       }
     },
     onSuccess: async () => {
@@ -108,8 +99,7 @@ export function TodayScreen() {
   const selectedOrAllQuestionIds =
     selectedQuestionIds.length > 0 ? selectedQuestionIds : visibleQuestionIds;
   const uncheckMutation = useMutation({
-    mutationFn: (questionIds: string[]) =>
-      uncheckTodayQuestions({ questionIds, datetime: today }),
+    mutationFn: (questionIds: string[]) => uncheckTodayQuestions({ questionIds, datetime: today }),
     onSuccess: async () => {
       setSelectedQuestionIds([]);
       await invalidateTodayData();
@@ -182,6 +172,7 @@ export function TodayScreen() {
       setTabBarHidden(false);
     };
   }, [isEditing, setTabBarHidden]);
+  const bottomToolbar = useNativeToolbarFadePresence(isEditing);
 
   return (
     <>
@@ -190,15 +181,17 @@ export function TodayScreen() {
         onEnterEdit={() => setIsEditing(true)}
         onExitEdit={exitEdit}
       />
-      {isEditing ? (
+      {bottomToolbar.shouldRender ? (
         <Stack.Toolbar placement="bottom">
           <Stack.Toolbar.Button
+            hidden={bottomToolbar.hidden}
             onPress={() => uncheckMutation.mutate(selectedOrAllQuestionIds)}
           >
             {selectedQuestionIds.length > 0 ? "Uncheck" : "Uncheck All"}
           </Stack.Toolbar.Button>
-          <Stack.Toolbar.Spacer />
+          <Stack.Toolbar.Spacer hidden={bottomToolbar.hidden} />
           <Stack.Toolbar.Button
+            hidden={bottomToolbar.hidden}
             onPress={() => {
               if (selectedQuestionIds.length > 0) {
                 archiveMutation.mutate(selectedQuestionIds);
@@ -207,8 +200,9 @@ export function TodayScreen() {
           >
             Archive
           </Stack.Toolbar.Button>
-          <Stack.Toolbar.Spacer />
+          <Stack.Toolbar.Spacer hidden={bottomToolbar.hidden} />
           <Stack.Toolbar.Button
+            hidden={bottomToolbar.hidden}
             tintColor="red"
             onPress={() => {
               if (selectedQuestionIds.length === 0) {
@@ -223,8 +217,7 @@ export function TodayScreen() {
                   {
                     text: "Delete",
                     style: "destructive",
-                    onPress: () =>
-                      softDeleteSelectedMutation.mutate(selectedQuestionIds),
+                    onPress: () => softDeleteSelectedMutation.mutate(selectedQuestionIds),
                   },
                 ],
               );
@@ -234,56 +227,69 @@ export function TodayScreen() {
           </Stack.Toolbar.Button>
         </Stack.Toolbar>
       ) : null}
-      {isEditing ? (
-        <TodayEditList
-          rows={orderedRows}
-          selectedQuestionIds={selectedQuestionIds}
-          onSelectionChange={setSelectedQuestionIds}
-          onMove={moveRows}
-          onDelete={deleteRowsAtIndices}
-        />
-      ) : (
+      {todayQuery.isLoading ? (
         <ScrollView
           className="z-10 flex-1 bg-white"
           contentContainerClassName="relative px-3 pb-28 pt-2"
         >
-          {todayQuery.isLoading ? (
-            <Text className="text-slate-600 dark:text-slate-300">
-              Loading questions...
-            </Text>
-          ) : rows.length === 0 ? (
-            <EmptyTodayState tint={tint} onCreate={openCreateQuestion} />
-          ) : (
-            rows.map(({ question, value }) => (
-              <QuestionAnswerRow
-                key={question.id}
-                question={question}
-                value={value}
-                onChange={(value) => {
-                  answerMutation.mutate({ questionId: question.id, value });
-                }}
-              />
-            ))
-          )}
+          <Text className="text-slate-600 dark:text-slate-300">Loading questions...</Text>
         </ScrollView>
+      ) : rows.length === 0 ? (
+        <ScrollView
+          className="z-10 flex-1 bg-white"
+          contentContainerClassName="relative px-3 pb-28 pt-2"
+        >
+          <EmptyTodayState tint={tint} onCreate={openCreateQuestion} />
+        </ScrollView>
+      ) : (
+        <TodayEditList
+          isEditing={isEditing}
+          rows={orderedRows}
+          selectedQuestionIds={selectedQuestionIds}
+          onAnswerChange={(questionId, value) => {
+            answerMutation.mutate({ questionId, value });
+          }}
+          onSelectionChange={setSelectedQuestionIds}
+          onMove={moveRows}
+          onDelete={deleteRowsAtIndices}
+        />
       )}
     </>
   );
 }
 
-function reorderRows(
-  rows: TodayQuestionRow[],
-  sourceIndices: number[],
-  destination: number,
-) {
+function useNativeToolbarFadePresence(isVisible: boolean) {
+  const [shouldRender, setShouldRender] = useState(isVisible);
+  const [hidden, setHidden] = useState(!isVisible);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (isVisible) {
+      setShouldRender(true);
+      timeout = setTimeout(() => {
+        setHidden(false);
+      }, 0);
+    } else {
+      setHidden(true);
+      timeout = setTimeout(() => {
+        setShouldRender(false);
+      }, 220);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [isVisible]);
+
+  return { hidden, shouldRender };
+}
+
+function reorderRows(rows: TodayQuestionRow[], sourceIndices: number[], destination: number) {
   const movingIndexSet = new Set(sourceIndices);
   const movingRows = rows.filter((_row, index) => movingIndexSet.has(index));
-  const remainingRows = rows.filter(
-    (_row, index) => !movingIndexSet.has(index),
-  );
-  const precedingMovedCount = sourceIndices.filter(
-    (index) => index < destination,
-  ).length;
+  const remainingRows = rows.filter((_row, index) => !movingIndexSet.has(index));
+  const precedingMovedCount = sourceIndices.filter((index) => index < destination).length;
   const adjustedDestination = Math.max(0, destination - precedingMovedCount);
 
   return [
