@@ -44,11 +44,12 @@ Domain UI entities:
 When working on UI:
 
 1. Check existing app components and screen structure first.
-2. Prefer native components and Expo Router primitives.
-3. Keep Android/web fallbacks simple and honest rather than fake Liquid Glass.
-4. Use Uniwind for ordinary layout/styling where it fits.
-5. Use direct native component props/styles for native UI APIs that do not map cleanly to class names.
-6. Run typecheck after code changes.
+2. Use the `expo-docs-ui` skill and consult the exact SDK 56 docs before choosing Expo Router, Expo UI, SDK, or third-party UI APIs.
+3. Prefer native components and Expo Router primitives.
+4. Keep Android/web fallbacks simple and honest rather than fake Liquid Glass.
+5. Use Uniwind for ordinary layout/styling where it fits.
+6. Use direct native component props/styles for native UI APIs that do not map cleanly to class names.
+7. Run typecheck after code changes.
 
 ## Native modal toolbar actions
 

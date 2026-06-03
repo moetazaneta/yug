@@ -12,6 +12,7 @@ Use this skill for Liquid Glass and native iOS UI work in Yug.
 Before writing Expo UI code, read the exact Expo SDK 56 docs at:
 
 - https://docs.expo.dev/versions/v56.0.0/
+- Use the `expo-docs-ui` skill for the versioned Expo Router, Expo UI, SDK, and third-party UI docs index before choosing APIs.
 
 When behavior is unclear, use `btca` to inspect relevant source code for Expo, `expo-glass-effect`, `@expo/ui`, or `@callstack/liquid-glass`.
 
