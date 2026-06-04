@@ -1,5 +1,5 @@
-import { SegmentedControl } from "@expo/ui/community/segmented-control";
-import { useQueryClient } from "@tanstack/react-query";
+import SegmentedControl from "@expo/ui/community/segmented-control";
+import { useMutation } from "@tanstack/react-query";
 import { router, Stack } from "expo-router";
 import { useState } from "react";
 import {
@@ -19,23 +19,21 @@ import {
   questionPalette,
   questionValueTypes,
 } from "@/src/features/create-question/model";
-import { useCreateQuestionMutation } from "@/src/features/create-question/queries";
-import { toDayKey } from "@/src/shared/lib/date";
-import { todayQueryKeys } from "@/src/screens/today/service";
+import { useAppStore } from "@/src/state/app-store";
 
-const valueTypeLabels: string[] = questionValueTypes.map((type) =>
-  labelValueType(type),
-);
+import { createQuestionMutationOptions } from "./queries/create-question-options";
+
+const valueTypeLabels: string[] = questionValueTypes.map((type) => labelValueType(type));
 
 export function CreateQuestionScreen() {
-  const queryClient = useQueryClient();
+  const primaryColor = useAppStore((state) => state.primaryColor);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [valueType, setValueType] = useState<QuestionValueType>("boolean");
   const [valueUnits, setValueUnits] = useState("");
   const [icon, setIcon] = useState("✨");
   const [color, setColor] = useState(questionPalette[0]!);
-  const mutation = useCreateQuestionMutation();
+  const mutation = useMutation(createQuestionMutationOptions());
   const isDisabled = title.trim().length === 0 || mutation.isPending;
 
   function close() {
@@ -56,10 +54,7 @@ export function CreateQuestionScreen() {
         repeat: "daily",
       },
       {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: todayQueryKeys.view(toDayKey(new Date())),
-          });
+        onSuccess: () => {
           router.back();
         },
         onError: (error) => {
@@ -79,7 +74,7 @@ export function CreateQuestionScreen() {
         <Stack.Toolbar.Button
           disabled={isDisabled}
           icon="checkmark"
-          tintColor="primary"
+          tintColor={primaryColor}
           variant="done"
           onPress={save}
         />
@@ -157,21 +152,18 @@ export function CreateQuestionScreen() {
             Color
           </Text>
           <View className="flex-row flex-wrap gap-2 justify-between">
-            {questionColorOptions.map((swatch) => (
+            {questionColorOptions.map(({ token, value: swatchColor }) => (
               <Pressable
-                key={swatch.token}
-                accessibilityLabel={swatch.token}
+                key={token}
+                accessibilityLabel={token}
                 accessibilityRole="button"
                 className="size-11 rounded-3xl"
                 style={{
-                  backgroundColor: swatch.value,
-                  borderColor:
-                    color === swatch.value
-                      ? PlatformColor("label")
-                      : "transparent",
+                  backgroundColor: swatchColor,
+                  borderColor: color === swatchColor ? PlatformColor("label") : "transparent",
                   borderWidth: 2,
                 }}
-                onPress={() => setColor(swatch.value)}
+                onPress={() => setColor(swatchColor)}
               />
             ))}
           </View>

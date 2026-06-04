@@ -3,10 +3,17 @@ const { withUniwindConfig } = require("uniwind/metro");
 
 const config = getDefaultConfig(__dirname);
 
-// expo-sqlite's web worker imports wa-sqlite.wasm. Metro does not always
-// include wasm in the default web asset extensions, so add it explicitly.
-config.resolver.assetExts = Array.from(new Set([...config.resolver.assetExts, "wasm"]));
-config.resolver.sourceExts.push("sql"); // <--- add this
+// Add wasm asset support
+config.resolver.assetExts.push("wasm");
+
+// Add COEP and COOP headers to support SharedArrayBuffer
+config.server.enhanceMiddleware = (middleware) => {
+  return (req, res, next) => {
+    res.setHeader("Cross-Origin-Embedder-Policy", "credentialless");
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    middleware(req, res, next);
+  };
+};
 
 module.exports = withUniwindConfig(config, {
   cssEntryFile: "./global.css",

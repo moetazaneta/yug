@@ -8,8 +8,9 @@ import migrations from "@/drizzle/migrations";
 import { db } from "@/src/shared/db/client";
 import { backfillEntryDatetime, seedQuestionsIfEmpty } from "@/src/shared/db/seed";
 
+export const queryClient = new QueryClient();
+
 export function AppProviders({ children }: PropsWithChildren) {
-  const [queryClient] = useState(() => new QueryClient());
   const [isSeeded, setIsSeeded] = useState(false);
   const [seedError, setSeedError] = useState<Error | null>(null);
   const { success, error: migrationError } = useMigrations(db, migrations);

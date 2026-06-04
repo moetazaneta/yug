@@ -39,6 +39,33 @@ Domain UI entities:
 - Question: icon, title, description, color, value type, value units, repeat.
 - Entry: question id, value, datetime.
 
+## No card-first screens
+
+The user strongly dislikes card-heavy UI. Treat cards as the exception, not the
+default.
+
+Do:
+
+- Prefer full-width screen sections, rows, separators, whitespace, and subtle
+  background bands over bordered or floating cards.
+- Use cards only for repeated list items, modals, or genuinely framed tools
+  where a boundary is functionally useful.
+- Keep dashboards/data screens quiet and scannable: compact sections, aligned
+  labels, restrained controls, and clear data hierarchy.
+- Keep typography on a tight scale. Use at most one display number style, one
+  section-title style, one body style, and one caption style on a screen unless
+  there is a specific reason.
+- Let color come from domain data and small accents. Do not build whole surfaces
+  out of tinted boxes.
+
+Do not:
+
+- Do not stack multiple bordered panels/cards down a screen.
+- Do not put cards inside cards.
+- Do not use large icon tiles as decoration for simple metrics.
+- Do not mix many font sizes/weights just to create visual interest.
+- Do not create marketing-style dashboard cards for operational app screens.
+
 ## Implementation guidance
 
 When working on UI:

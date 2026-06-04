@@ -5,23 +5,38 @@ import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/src/shared/lib/cn";
 import { GlassCheckbox } from "@/src/shared/ui/glass/glass-checkbox";
 
-export function QuestionAnswerRow({ question, value, onChange }: AnswerQuestionProps) {
+export function QuestionAnswerRow({
+  question,
+  value,
+  onChange,
+}: AnswerQuestionProps) {
   return (
     <View className="flex-row items-center gap-2 py-2">
       <View className="size-8 items-center justify-center">
         <Text className="text-base">{question.icon}</Text>
       </View>
       <View className="min-w-0 flex-1">
-        <Text className="font-semibold text-slate-950 dark:text-white" numberOfLines={1}>
+        <Text
+          className="font-semibold text-slate-950 dark:text-white"
+          numberOfLines={1}
+        >
           {question.title}
         </Text>
       </View>
-      <QuestionAnswerControl question={question} value={value} onChange={onChange} />
+      <QuestionAnswerControl
+        question={question}
+        value={value}
+        onChange={onChange}
+      />
     </View>
   );
 }
 
-export function QuestionAnswerControl({ question, value, onChange }: AnswerQuestionProps) {
+export function QuestionAnswerControl({
+  question,
+  value,
+  onChange,
+}: AnswerQuestionProps) {
   const checked = value === "true" || value === true;
   const theme = useTheme();
   const inputClassName =
@@ -64,7 +79,9 @@ export function QuestionAnswerControl({ question, value, onChange }: AnswerQuest
       <TextInput
         className={cn(inputClassName, "w-16")}
         style={{ fontFamily: "SpaceMono" }}
-        placeholder={question.valueUnits ? question.valueUnits.slice(0, 3) : "0"}
+        placeholder={
+          question.valueUnits ? question.valueUnits.slice(0, 3) : "0"
+        }
         placeholderTextColor={theme.textDim}
         selectionColor={theme.primary}
         keyboardType="decimal-pad"

@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { seed } from "drizzle-seed";
 
 import { entries } from "@/src/entities/entry/schema";
 import type { CreateQuestionInput } from "@/src/entities/question/model";
@@ -13,6 +14,24 @@ const COLORS = {
   purple: "#AF52DE",
   blue: "#007AFF",
 } as const;
+
+const randomSeedQuestions = [
+  "Drink water",
+  "Walk outside",
+  "Read",
+  "Stretch",
+  "Sleep quality",
+  "Mood",
+  "Workout",
+  "Meditate",
+  "Protein",
+  "Screen time",
+] as const;
+
+const randomQuestionIcons = ["💧", "🚶", "📖", "🧘", "🏋️", "🌙", "🙂", "🥗", "🧠", "☕"] as const;
+const randomQuestionColors = Object.values(COLORS);
+const randomQuestionValueTypes = ["boolean", "number", "text"] as const;
+const randomEntryValues = ["true", "false", "1", "2", "3", "5", "8", "good", "ok", "low"] as const;
 
 export const seedQuestions: CreateQuestionInput[] = [
   {
@@ -148,6 +167,64 @@ export async function seedQuestionsIfEmpty() {
       updatedAt: now,
     })),
   );
+}
+
+export async function seedRandomQuestions(count = 5) {
+  const now = new Date().toISOString();
+
+  await seed(db, { questions }, { count, seed: Date.now() }).refine((funcs) => ({
+    questions: {
+      columns: {
+        icon: funcs.valuesFromArray({ values: [...randomQuestionIcons] }),
+        title: funcs.valuesFromArray({ values: [...randomSeedQuestions] }),
+        description: funcs.default({ defaultValue: "" }),
+        color: funcs.valuesFromArray({ values: randomQuestionColors }),
+        valueType: funcs.valuesFromArray({ values: [...randomQuestionValueTypes] }),
+        valueUnits: funcs.valuesFromArray({ values: ["", "min", "cups", "reps"] }),
+        repeat: funcs.default({ defaultValue: "daily" }),
+        archivedAt: funcs.default({ defaultValue: null }),
+        deletedAt: funcs.default({ defaultValue: null }),
+        sortOrder: funcs.int({ minValue: 0, maxValue: 500 }),
+        createdAt: funcs.default({ defaultValue: now }),
+        updatedAt: funcs.default({ defaultValue: now }),
+      },
+    },
+  }));
+}
+
+export async function seedRandomEntries(count = 25) {
+  let availableQuestions = await db.select({ id: questions.id }).from(questions);
+
+  if (availableQuestions.length === 0) {
+    await seedRandomQuestions();
+    availableQuestions = await db.select({ id: questions.id }).from(questions);
+  }
+
+  const questionIds = availableQuestions.map((question) => question.id);
+  const now = new Date().toISOString();
+
+  await seed(db, { entries }, { count, seed: Date.now() }).refine((funcs) => ({
+    entries: {
+      columns: {
+        questionId: funcs.valuesFromArray({ values: questionIds }),
+        value: funcs.valuesFromArray({ values: [...randomEntryValues] }),
+        datetime: funcs.valuesFromArray({ values: createRecentIsoDates(60) }),
+        createdAt: funcs.default({ defaultValue: now }),
+        updatedAt: funcs.default({ defaultValue: now }),
+      },
+    },
+  }));
+}
+
+function createRecentIsoDates(dayCount: number) {
+  const today = new Date();
+
+  return Array.from({ length: dayCount }, (_value, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - index);
+    date.setHours(12, 0, 0, 0);
+    return date.toISOString();
+  });
 }
 
 export async function backfillEntryDatetime() {

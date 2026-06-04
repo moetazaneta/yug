@@ -8,6 +8,21 @@ import { GlassCheckbox } from "@/src/shared/ui/glass/glass-checkbox";
 
 import { GRID_GAP, entryIsFilled, valueOpacity, withAlpha } from "./entries-utils";
 
+const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 function EntryControl({ question, value }: { question: Question; value: string | undefined }) {
   if (question.valueType === "boolean") {
     return <GlassCheckbox value={value === "true"} />;
@@ -25,51 +40,108 @@ function EntryControl({ question, value }: { question: Question; value: string |
   );
 }
 
-function EntryGridBody({
+export function EntryGridBody({
   entriesByDay,
+  gap = GRID_GAP,
   question,
+  showMonthLabels = false,
   squareSize,
   weeks,
 }: {
   entriesByDay: Map<string, Entry> | undefined;
-  question: Question;
+  gap?: number;
+  question: Pick<Question, "color">;
+  showMonthLabels?: boolean;
   squareSize: number;
   weeks: Date[][];
 }) {
+  const gridWidth = weeks.length * squareSize + Math.max(weeks.length - 1, 0) * gap;
+
   return (
-    <View className="flex-row-reverse items-start" style={{ gap: GRID_GAP }}>
-      {weeks.map((week) => {
-        const weekStart = week[0];
+    <View style={{ alignSelf: "center", width: gridWidth }}>
+      {showMonthLabels ? (
+        <View className="mb-2 h-4">
+          {makeMonthLabels(weeks).map(({ index, label }) => (
+            <Text
+              key={`${label}-${index}`}
+              className="absolute text-xs text-neutral-400 dark:text-neutral-500"
+              numberOfLines={1}
+              style={{
+                left: visualColumnLeft(index, weeks.length, squareSize, gap),
+                width: squareSize * 3 + gap * 2,
+              }}
+            >
+              {label}
+            </Text>
+          ))}
+        </View>
+      ) : null}
+      <View className="flex-row-reverse items-start" style={{ gap }}>
+        {weeks.map((week) => {
+          const weekStart = week[0];
 
-        if (!weekStart) {
-          return null;
-        }
+          if (!weekStart) {
+            return null;
+          }
 
-        return (
-          <View key={toDayKey(weekStart)} className="gap-[5px]">
-            {week.map((day) => {
-              const dayKey = toDayKey(day);
-              const entry = entriesByDay?.get(dayKey);
+          return (
+            <View key={toDayKey(weekStart)} style={{ gap }}>
+              {week.map((day) => {
+                const dayKey = toDayKey(day);
+                const entry = entriesByDay?.get(dayKey);
 
-              return (
-                <View
-                  key={dayKey}
-                  className="rounded-[5px]"
-                  style={{
-                    width: squareSize,
-                    height: squareSize,
-                    backgroundColor: entryIsFilled(entry)
-                      ? withAlpha(question.color, valueOpacity(entry))
-                      : withAlpha(question.color, "14"),
-                  }}
-                />
-              );
-            })}
-          </View>
-        );
-      })}
+                return (
+                  <View
+                    key={dayKey}
+                    className="rounded-[5px]"
+                    style={{
+                      width: squareSize,
+                      height: squareSize,
+                      backgroundColor: entryIsFilled(entry)
+                        ? withAlpha(question.color, valueOpacity(entry))
+                        : withAlpha(question.color, "14"),
+                    }}
+                  />
+                );
+              })}
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
+}
+
+function makeMonthLabels(weeks: Date[][]) {
+  const labels: { index: number; label: string }[] = [];
+  let lastVisualLabelIndex = Number.NEGATIVE_INFINITY;
+
+  for (let index = weeks.length - 1; index >= 0; index -= 1) {
+    const weekStart = weeks[index]?.[0];
+    const previousVisualWeekStart = weeks[index + 1]?.[0];
+
+    if (
+      weekStart &&
+      (!previousVisualWeekStart || weekStart.getMonth() !== previousVisualWeekStart.getMonth()) &&
+      weeks.length - 1 - index - lastVisualLabelIndex >= 2
+    ) {
+      const visualIndex = weeks.length - 1 - index;
+      const label = MONTH_LABELS[weekStart.getMonth()];
+
+      if (!label) {
+        continue;
+      }
+
+      labels.push({ index, label });
+      lastVisualLabelIndex = visualIndex;
+    }
+  }
+
+  return labels;
+}
+
+function visualColumnLeft(index: number, columnCount: number, squareSize: number, gap: number) {
+  return (columnCount - 1 - index) * (squareSize + gap);
 }
 
 export function EntryGrid({
@@ -128,18 +200,30 @@ export function EntryGrid({
 
 export function EntryGridPreview({
   entriesByDay,
+  gap = GRID_GAP,
   question,
   squareSize,
   weeks,
 }: {
   entriesByDay: Map<string, Entry> | undefined;
+  gap?: number;
   question: Question;
   squareSize: number;
   weeks: Date[][];
 }) {
+  const gridWidth = weeks.length * squareSize + Math.max(weeks.length - 1, 0) * gap;
+  const gridHeight = 7 * squareSize + 6 * gap;
+  const headerHeight = 32;
+  const previewGap = 12;
+  const previewPadding = 16;
+  const previewHeight = headerHeight + previewGap + gridHeight + previewPadding * 2;
+
   return (
-    <View className="gap-3 rounded-2xl bg-white p-4 dark:bg-black">
-      <View className="flex-row items-center gap-2">
+    <View
+      className="gap-3 rounded-2xl bg-white p-4 dark:bg-black"
+      style={{ height: previewHeight, width: gridWidth + previewPadding * 2 }}
+    >
+      <View className="h-8 flex-row items-center gap-2">
         <View className="size-8 items-center justify-center">
           <Text className="text-base">{question.icon}</Text>
         </View>
@@ -152,6 +236,7 @@ export function EntryGridPreview({
       </View>
       <EntryGridBody
         entriesByDay={entriesByDay}
+        gap={gap}
         question={question}
         squareSize={squareSize}
         weeks={weeks}

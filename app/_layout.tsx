@@ -1,7 +1,7 @@
 import { useFonts } from "expo-font";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import "react-native-gesture-handler";
 import "react-native-reanimated";
 import { Uniwind } from "uniwind";
@@ -49,8 +49,20 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const primaryColor = useAppStore((state) => state.primaryColor);
   const themePreference = useAppStore((state) => state.themePreference);
   const effectiveColorScheme = themePreference === "system" ? colorScheme : themePreference;
+  const navigationTheme = useMemo(() => {
+    const baseTheme = effectiveColorScheme === "dark" ? DarkTheme : DefaultTheme;
+
+    return {
+      ...baseTheme,
+      colors: {
+        ...baseTheme.colors,
+        primary: primaryColor,
+      },
+    };
+  }, [effectiveColorScheme, primaryColor]);
 
   useEffect(() => {
     Uniwind.setTheme(themePreference);
@@ -58,7 +70,7 @@ function RootLayoutNav() {
 
   return (
     <AppProviders>
-      <ThemeProvider value={effectiveColorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={navigationTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: "modal" }} />

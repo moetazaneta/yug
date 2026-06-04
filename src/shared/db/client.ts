@@ -1,11 +1,15 @@
 import { drizzle } from "drizzle-orm/expo-sqlite";
-import { openDatabaseSync, type SQLiteDatabase } from "expo-sqlite";
+import {
+  openDatabaseAsync,
+  openDatabaseSync,
+  type SQLiteDatabase,
+} from "expo-sqlite";
 
 import * as schema from "./schema";
 
 export const databaseName = "yug.db";
 
-const expo = openDatabaseSync(databaseName);
+const expo = await openDatabaseAsync(databaseName, {});
 prepareLegacyRawSqlDatabase(expo);
 prepareQuestionLifecycleColumns(expo);
 
@@ -97,7 +101,9 @@ function prepareQuestionLifecycleColumns(database: SQLiteDatabase) {
   }
 
   if (!questionColumns.has("sortOrder")) {
-    database.execSync("ALTER TABLE questions ADD COLUMN sortOrder integer NOT NULL DEFAULT 0;");
+    database.execSync(
+      "ALTER TABLE questions ADD COLUMN sortOrder integer NOT NULL DEFAULT 0;",
+    );
     database.execSync(`
       UPDATE questions
       SET sortOrder = (

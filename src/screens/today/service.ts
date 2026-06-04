@@ -36,10 +36,6 @@ export type AnswerTodayQuestionInput = {
   datetime?: Date;
 };
 
-export const todayQueryKeys = {
-  view: (dayKey: string) => ["today", "view", dayKey] as const,
-};
-
 export async function getTodayViewModel(date = new Date()): Promise<TodayViewModel> {
   const today = dayBounds(date);
   const month = monthBounds(date);

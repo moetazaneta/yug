@@ -1,8 +1,9 @@
 import { useCSSVariable } from "uniwind";
 
+import { useAppStore } from "@/src/state/app-store";
+
 export function useTheme() {
-  const primary = useCSSVariable("--color-sky-400") as string;
-  const primaryDim = useCSSVariable("--color-sky-300") as string;
+  const primary = useAppStore((state) => state.primaryColor);
 
   const surface1 = useCSSVariable("--color-white") as string;
   const surface2 = useCSSVariable("--color-neutral-100") as string;
@@ -13,7 +14,7 @@ export function useTheme() {
 
   return {
     primary,
-    primaryDim,
+    primaryDim: `${primary}99`,
     surface1,
     surface2,
     surface3,
