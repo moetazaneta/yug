@@ -27,11 +27,13 @@ export function TodayTopToolbar() {
       <Stack.Title>{todayReadable}</Stack.Title>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
+          key="create-question"
           hidden={isEditing}
           icon="plus.circle"
           onPress={openCreateQuestion}
         />
         <Stack.Toolbar.Button
+          key="edit-questions"
           hidden={isEditing}
           icon="square.and.pencil"
           onPress={() => {}}

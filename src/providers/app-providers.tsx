@@ -1,11 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
-import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { type PropsWithChildren, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
 import migrations from "@/drizzle/migrations";
-import { db } from "@/src/shared/db/client";
+import { migrateDatabase } from "@/src/shared/db/client";
 import { backfillEntryDatetime, seedQuestionsIfEmpty } from "@/src/shared/db/seed";
 
 export const queryClient = new QueryClient();
@@ -13,19 +11,13 @@ export const queryClient = new QueryClient();
 export function AppProviders({ children }: PropsWithChildren) {
   const [isSeeded, setIsSeeded] = useState(false);
   const [seedError, setSeedError] = useState<Error | null>(null);
-  const { success, error: migrationError } = useMigrations(db, migrations);
-
-  useDrizzleStudio(db.$client);
 
   useEffect(() => {
-    if (!success) {
-      return;
-    }
-
     let isMounted = true;
 
     async function prepareDatabase() {
       try {
+        await migrateDatabase(migrations);
         await backfillEntryDatetime();
         await seedQuestionsIfEmpty();
         if (isMounted) {
@@ -43,15 +35,7 @@ export function AppProviders({ children }: PropsWithChildren) {
     return () => {
       isMounted = false;
     };
-  }, [success]);
-
-  if (migrationError) {
-    return (
-      <View>
-        <Text>Migration error: {migrationError.message}</Text>
-      </View>
-    );
-  }
+  }, []);
 
   if (seedError) {
     return (
@@ -61,7 +45,7 @@ export function AppProviders({ children }: PropsWithChildren) {
     );
   }
 
-  if (!success || !isSeeded) {
+  if (!isSeeded) {
     return (
       <View>
         <Text>Database is starting...</Text>

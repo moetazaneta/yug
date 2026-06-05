@@ -73,19 +73,22 @@ export function TodayBottomToolbar() {
   return (
     <Stack.Toolbar placement="bottom">
       <Stack.Toolbar.Button
+        key="uncheck"
         onPress={() => uncheckMutation.mutate(selectedOrAllQuestionIds)}
       >
         {hasSelection ? "Uncheck" : "Uncheck All"}
       </Stack.Toolbar.Button>
-      <Stack.Toolbar.Spacer />
+      <Stack.Toolbar.Spacer key="archive-spacer" />
       <Stack.Toolbar.Button
+        key="archive"
         disabled={!hasSelection}
         onPress={archiveSelectedQuestions}
       >
         Archive
       </Stack.Toolbar.Button>
-      <Stack.Toolbar.Spacer />
+      <Stack.Toolbar.Spacer key="delete-spacer" />
       <Stack.Toolbar.Button
+        key="delete"
         disabled={!hasSelection}
         tintColor="red"
         onPress={deleteSelectedQuestions}
