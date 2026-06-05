@@ -184,13 +184,15 @@ export function TodayScreen() {
       {bottomToolbar.shouldRender ? (
         <Stack.Toolbar placement="bottom">
           <Stack.Toolbar.Button
+            key="uncheck"
             hidden={bottomToolbar.hidden}
             onPress={() => uncheckMutation.mutate(selectedOrAllQuestionIds)}
           >
             {selectedQuestionIds.length > 0 ? "Uncheck" : "Uncheck All"}
           </Stack.Toolbar.Button>
-          <Stack.Toolbar.Spacer hidden={bottomToolbar.hidden} />
+          <Stack.Toolbar.Spacer key="archive-spacer" hidden={bottomToolbar.hidden} />
           <Stack.Toolbar.Button
+            key="archive"
             hidden={bottomToolbar.hidden}
             onPress={() => {
               if (selectedQuestionIds.length > 0) {
@@ -200,8 +202,9 @@ export function TodayScreen() {
           >
             Archive
           </Stack.Toolbar.Button>
-          <Stack.Toolbar.Spacer hidden={bottomToolbar.hidden} />
+          <Stack.Toolbar.Spacer key="delete-spacer" hidden={bottomToolbar.hidden} />
           <Stack.Toolbar.Button
+            key="delete"
             hidden={bottomToolbar.hidden}
             tintColor="red"
             onPress={() => {

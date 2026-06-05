@@ -26,8 +26,18 @@ export function TodayToolbar({ isEditing, onEnterEdit, onExitEdit }: TodayToolba
       </Stack.Toolbar>
       <Stack.Title>{todayReadable}</Stack.Title>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button hidden={isEditing} icon="plus.circle" onPress={openCreateQuestion} />
-        <Stack.Toolbar.Button hidden={isEditing} icon="square.and.pencil" onPress={() => {}} />
+        <Stack.Toolbar.Button
+          key="create-question"
+          hidden={isEditing}
+          icon="plus.circle"
+          onPress={openCreateQuestion}
+        />
+        <Stack.Toolbar.Button
+          key="edit-questions"
+          hidden={isEditing}
+          icon="square.and.pencil"
+          onPress={() => {}}
+        />
       </Stack.Toolbar>
     </>
   );
